@@ -6,4 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\DeckOptimizer.Domain\DeckOptimizer.Domain.csproj" />
+    <ProjectReference Include="..\DeckOptimizer.Infrastructure\DeckOptimizer.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>
