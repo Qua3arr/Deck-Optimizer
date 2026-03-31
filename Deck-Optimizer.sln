@@ -1,0 +1,51 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35707.178 d17.12
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeckOptimizer.Domain", "DeckOptimizer.Domain\DeckOptimizer.Domain.csproj", "{D9032C50-6CB6-432F-95E6-8F8004BEAED3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeckOptimizer.Infrastructure", "DeckOptimizer.Infrastructure\DeckOptimizer.Infrastructure.csproj", "{F068141D-8DA6-4CA0-8739-97B7FD8A921B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D9032C50-6CB6-432F-95E6-8F8004BEAED3} = {D9032C50-6CB6-432F-95E6-8F8004BEAED3}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeckOptimizer.Application", "DeckOptimizer.Application\DeckOptimizer.Application.csproj", "{C243A05E-CC4D-4EE6-8891-073221A92AE1}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D9032C50-6CB6-432F-95E6-8F8004BEAED3} = {D9032C50-6CB6-432F-95E6-8F8004BEAED3}
+		{F068141D-8DA6-4CA0-8739-97B7FD8A921B} = {F068141D-8DA6-4CA0-8739-97B7FD8A921B}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeckOptimizer.UI", "DeckOptimizer.UI\DeckOptimizer.UI.csproj", "{063AF978-A301-4D40-8DD7-9E9D3FDFDA10}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C243A05E-CC4D-4EE6-8891-073221A92AE1} = {C243A05E-CC4D-4EE6-8891-073221A92AE1}
+		{F068141D-8DA6-4CA0-8739-97B7FD8A921B} = {F068141D-8DA6-4CA0-8739-97B7FD8A921B}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D9032C50-6CB6-432F-95E6-8F8004BEAED3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9032C50-6CB6-432F-95E6-8F8004BEAED3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9032C50-6CB6-432F-95E6-8F8004BEAED3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9032C50-6CB6-432F-95E6-8F8004BEAED3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F068141D-8DA6-4CA0-8739-97B7FD8A921B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F068141D-8DA6-4CA0-8739-97B7FD8A921B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F068141D-8DA6-4CA0-8739-97B7FD8A921B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F068141D-8DA6-4CA0-8739-97B7FD8A921B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C243A05E-CC4D-4EE6-8891-073221A92AE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C243A05E-CC4D-4EE6-8891-073221A92AE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C243A05E-CC4D-4EE6-8891-073221A92AE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C243A05E-CC4D-4EE6-8891-073221A92AE1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{063AF978-A301-4D40-8DD7-9E9D3FDFDA10}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{063AF978-A301-4D40-8DD7-9E9D3FDFDA10}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{063AF978-A301-4D40-8DD7-9E9D3FDFDA10}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{063AF978-A301-4D40-8DD7-9E9D3FDFDA10}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
