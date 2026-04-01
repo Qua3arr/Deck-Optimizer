@@ -17,10 +17,76 @@ namespace DeckOptimizer.Application.Services
         }
 
         private void BranchAndBoundRecursive(
-            int index, decimal currentCost, int currentSize, double currentValue,
-            List<Card> selected, IList<Card> allCards, OptimizationParameters parameters)
+        int index, decimal currentCost, int currentSize, double currentValue,
+        List<Card> selected, IList<Card> allCards, OptimizationParameters parameters)
         {
-            
+            //Увеличиваем счетчик узлов дерева для анализа сложности алгоритма
+            _nodeCount++;
+
+            //Базовый случай 1: Мы собрали нужное количество карт
+            if (currentSize == parameters.DeckSize)
+            {
+                //Если текущая колода лучше лучшей найденной (и стоимость не превышена)
+                if (currentValue > _bestValue && currentCost <= parameters.MaxCost)
+                {
+                    _bestValue = currentValue;
+                    //Обязательно делаем копию списка, иначе по ссылке он очистится при возврате (backtracking)
+                    _bestSolution = new List<Card>(selected);
+                }
+                return;
+            }
+
+            //Базовый случай 2: Карты закончились, а колода не собрана
+            if (index >= allCards.Count)
+            {
+                return;
+            }
+
+            //ОТСЕЧЕНИЕ (Bounding): Вычисляем теоретический максимум для текущей ветви
+            double bound = EvaluateBound(index, currentCost, currentSize, currentValue, allCards, parameters);
+
+            //Если даже в идеальном случае мы не сможем побить текущий рекорд — отсекаем ветвь
+            if (bound <= _bestValue)
+            {
+                return;
+            }
+
+            var currentCard = allCards[index];
+
+            //ВЕТВЛЕНИЕ 1: Добавляем текущую карту в колоду
+            //Проверяем, не нарушим ли мы ограничения по стоимости и размеру, добавив эту карту
+            if (IsFeasible(currentCost + currentCard.Cost, currentSize + 1, parameters))
+            {
+                selected.Add(currentCard);
+                double cardValue = CalculateCardValue(currentCard, parameters.Weights);
+
+                //Идем глубже по дереву
+                BranchAndBoundRecursive(
+                    index + 1,
+                    currentCost + currentCard.Cost,
+                    currentSize + 1,
+                    currentValue + cardValue,
+                    selected,
+                    allCards,
+                    parameters);
+
+                //ВОЗВРАТ (Backtracking): Убираем карту, чтобы рассмотреть другие варианты
+                selected.RemoveAt(selected.Count - 1);
+            }
+
+            //ВЕТВЛЕНИЕ 2: Пропускаем текущую карту
+            //Делаем небольшую оптимизацию: идем в эту ветвь, только если оставшихся карт хватит, чтобы добить колоду до нужного размера
+            if (currentSize + (allCards.Count - index - 1) >= parameters.DeckSize)
+            {
+                BranchAndBoundRecursive(
+                    index + 1,
+                    currentCost,
+                    currentSize,
+                    currentValue,
+                    selected,
+                    allCards,
+                    parameters);
+            }
         }
 
         //Расчет агрегированного показателя качества F карты с учетом весов
