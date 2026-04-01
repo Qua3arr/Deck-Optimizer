@@ -13,7 +13,41 @@ namespace DeckOptimizer.Application.Services
 
         public OptimizationResult Optimize(OptimizationParameters parameters, IList<Card> cards)
         {
-            return new OptimizationResult();
+            //Сброс состояния перед новым расчетом
+            _bestSolution = new List<Card>();
+            _bestValue = double.MinValue;
+            _nodeCount = 0;
+
+            //Предварительная сортировка карт по удельной ценности (Value / Cost)
+            //Это критически важно для эффективности отсечений (Bounding)
+            var sortedCards = cards
+                .Select(c => new { Card = c, UnitValue = c.Cost > 0 ? CalculateCardValue(c, parameters.Weights) / (double)c.Cost : CalculateCardValue(c, parameters.Weights) / 0.01 })
+                .OrderByDescending(x => x.UnitValue)
+                .Select(x => x.Card)
+                .ToList();
+
+            var watch = Stopwatch.StartNew();
+
+            //Запуск рекурсивного алгоритма с начальными параметрами
+            BranchAndBoundRecursive(
+                index: 0,
+                currentCost: 0,
+                currentSize: 0,
+                currentValue: 0,
+                selected: new List<Card>(),
+                allCards: sortedCards,
+                parameters: parameters);
+
+            watch.Stop();
+
+            //Формирование итогового результата
+            return new OptimizationResult
+            {
+                SelectedCards = _bestSolution,
+                TotalCost = _bestSolution.Sum(c => c.Cost),
+                AggregatedValue = _bestValue,
+                CalculationTime = watch.Elapsed
+            };
         }
 
         private void BranchAndBoundRecursive(
