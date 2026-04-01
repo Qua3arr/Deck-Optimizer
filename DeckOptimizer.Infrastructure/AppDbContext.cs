@@ -4,7 +4,7 @@ using System.Reflection.PortableExecutable;
 
 namespace DeckOptimizer.Infrastructure
 {
-    internal class AppDbContext : DbContext
+    public class AppDbContext : DbContext
     {
         public DbSet<Card> Cards { get; set; }
         public DbSet<Characteristic> Characteristics { get; set; }
