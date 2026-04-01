@@ -2,7 +2,7 @@
 
 namespace DeckOptimizer.Application.Models
 {
-    internal class OptimizationResult
+    public class OptimizationResult
     {
         //Список оптимально подобранных карт 
         public List<Card> SelectedCards { get; set; } = new();
