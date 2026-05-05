@@ -62,6 +62,9 @@ while (true)
                 RunOptimization(cardService);
                 break;
             case "7":
+                AddCharacteristic(cardService);
+                break;
+            case "8":
                 CardGenerator.SeedDatabase(dbContext, resetDatabase: true);
                 break;
             case "0":
@@ -86,7 +89,8 @@ static void PrintMenu()
     Console.WriteLine("4 - Удалить карту");
     Console.WriteLine("5 - Фильтровать карты");
     Console.WriteLine("6 - Оптимизировать колоду");
-    Console.WriteLine("7 - Сбросить и заново создать демо-данные");
+    Console.WriteLine("7 - Добавить характеристику");
+    Console.WriteLine("8 - Сбросить и заново создать демо-данные");
     Console.WriteLine("0 - Выход");
     Console.Write("Команда: ");
 }
@@ -182,6 +186,15 @@ static void DeleteCard(CardService cardService)
 
     cardService.DeleteCard(card.Id);
     Console.WriteLine("Карта удалена.");
+}
+
+static void AddCharacteristic(CardService cardService)
+{
+    var name = ReadRequiredText("Название новой характеристики");
+    var defaultValue = ReadDoubleWithDefault("Значение для уже существующих карт", defaultValue: 0, min: 0);
+
+    var characteristic = cardService.AddCharacteristic(name, defaultValue);
+    Console.WriteLine($"Характеристика \"{characteristic.Name}\" добавлена.");
 }
 
 static void FilterCards(CardService cardService)

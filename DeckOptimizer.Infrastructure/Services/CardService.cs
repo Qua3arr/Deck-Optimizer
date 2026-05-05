@@ -79,6 +79,46 @@ namespace DeckOptimizer.Infrastructure.Services
             return GetAllCharacteristics();
         }
 
+        public Characteristic AddCharacteristic(string name, double defaultValue)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentException("Название характеристики не может быть пустым.");
+            }
+
+            var trimmedName = name.Trim();
+            if (GetAllCharacteristics().Any(c => string.Equals(c.Name, trimmedName, StringComparison.OrdinalIgnoreCase)))
+            {
+                throw new InvalidOperationException("Характеристика с таким названием уже существует.");
+            }
+
+            using var transaction = _dbContext.Database.BeginTransaction();
+
+            var characteristic = new Characteristic
+            {
+                Id = Guid.NewGuid(),
+                Name = trimmedName
+            };
+
+            _dbContext.Characteristics.Add(characteristic);
+            _dbContext.SaveChanges();
+
+            foreach (var card in _dbContext.Cards.ToList())
+            {
+                _dbContext.CharacteristicValues.Add(new CharacteristicValue
+                {
+                    CardId = card.Id,
+                    CharacteristicId = characteristic.Id,
+                    Value = defaultValue
+                });
+            }
+
+            _dbContext.SaveChanges();
+            transaction.Commit();
+
+            return characteristic;
+        }
+
         //Фильтрация карт по заданному условию 
         public List<Card> FilterCards(Func<Card, bool> predicate)
         {
