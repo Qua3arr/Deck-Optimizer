@@ -67,6 +67,9 @@ while (true)
             case "8":
                 CardGenerator.SeedDatabase(dbContext, resetDatabase: true);
                 break;
+            case "9":
+                RunExperiments(cardService);
+                break;
             case "0":
                 return;
             default:
@@ -91,6 +94,7 @@ static void PrintMenu()
     Console.WriteLine("6 - Оптимизировать колоду");
     Console.WriteLine("7 - Добавить характеристику");
     Console.WriteLine("8 - Сбросить и заново создать демо-данные");
+    Console.WriteLine("9 - Запустить эксперименты");
     Console.WriteLine("0 - Выход");
     Console.Write("Команда: ");
 }
@@ -257,6 +261,115 @@ static void RunOptimization(CardService cardService)
 
     PrintOptimizationResult(result);
     RunBruteForceCheck(parameters, allCards, result);
+}
+
+static void RunExperiments(CardService cardService)
+{
+    const long bruteForceCombinationLimit = 250_000;
+
+    var characteristics = cardService.GetAllCharacteristics();
+    if (characteristics.Count == 0)
+    {
+        characteristics = new List<Characteristic>
+        {
+            new Characteristic { Id = Guid.NewGuid(), Name = "Атака" },
+            new Characteristic { Id = Guid.NewGuid(), Name = "Здоровье" }
+        };
+    }
+
+    var weights = characteristics.ToDictionary(c => c.Id, _ => 1.0);
+    var cases = new[]
+    {
+        new ExperimentCase(CardCount: 10, DeckSize: 3),
+        new ExperimentCase(CardCount: 15, DeckSize: 4),
+        new ExperimentCase(CardCount: 20, DeckSize: 5),
+        new ExperimentCase(CardCount: 30, DeckSize: 5),
+        new ExperimentCase(CardCount: 50, DeckSize: 5),
+        new ExperimentCase(CardCount: 100, DeckSize: 5)
+    };
+
+    Console.WriteLine();
+    Console.WriteLine("Экспериментальный анализ алгоритмов");
+    Console.WriteLine("Данные генерируются в памяти и не изменяют базу.");
+    Console.WriteLine("Вес каждой характеристики равен 1.");
+    Console.WriteLine();
+    Console.WriteLine("n\tK\tC\tB&B F\tB&B мс\tУзлы B&B\tПолный перебор\tПроверка");
+
+    foreach (var experimentCase in cases)
+    {
+        var cards = GenerateExperimentCards(experimentCase.CardCount, characteristics);
+        var parameters = new OptimizationParameters
+        {
+            MaxCost = experimentCase.DeckSize * 8,
+            DeckSize = experimentCase.DeckSize,
+            Weights = weights
+        };
+
+        var branchAndBoundResult = new BranchAndBoundOptimizer().Optimize(parameters, cards);
+        var combinationCount = CountCombinationsLimited(cards.Count, parameters.DeckSize, bruteForceCombinationLimit);
+
+        var bruteForceText = "пропущен";
+        var checkText = "нет";
+
+        if (combinationCount <= bruteForceCombinationLimit)
+        {
+            var bruteForceResult = new BruteForceOptimizer().Optimize(parameters, cards);
+            bruteForceText = $"{bruteForceResult.CalculationTime.TotalMilliseconds:F0} мс";
+            checkText = AreResultsEqual(branchAndBoundResult, bruteForceResult) ? "совпало" : "ошибка";
+        }
+
+        Console.WriteLine(
+            $"{cards.Count}\t{parameters.DeckSize}\t{parameters.MaxCost}\t{FormatValue(branchAndBoundResult)}\t" +
+            $"{branchAndBoundResult.CalculationTime.TotalMilliseconds:F0}\t{branchAndBoundResult.VisitedNodeCount}\t" +
+            $"{bruteForceText}\t{checkText}");
+    }
+}
+
+static List<Card> GenerateExperimentCards(int cardCount, IReadOnlyList<Characteristic> characteristics)
+{
+    var random = new Random(10_000 + cardCount * 31 + characteristics.Count);
+    var cards = new List<Card>();
+
+    for (int i = 1; i <= cardCount; i++)
+    {
+        var card = new Card
+        {
+            Id = Guid.NewGuid(),
+            Name = $"Experiment Card #{i}",
+            Cost = random.Next(1, 16)
+        };
+
+        foreach (var characteristic in characteristics)
+        {
+            card.CharacteristicValues.Add(new CharacteristicValue
+            {
+                CardId = card.Id,
+                CharacteristicId = characteristic.Id,
+                Characteristic = characteristic,
+                Value = random.Next(1, 21)
+            });
+        }
+
+        cards.Add(card);
+    }
+
+    return cards;
+}
+
+static string FormatValue(OptimizationResult result)
+{
+    return result.HasSolution ? result.AggregatedValue.ToString("F2", CultureInfo.CurrentCulture) : "-";
+}
+
+static bool AreResultsEqual(OptimizationResult first, OptimizationResult second)
+{
+    if (!first.HasSolution && !second.HasSolution)
+    {
+        return true;
+    }
+
+    return first.HasSolution == second.HasSolution &&
+        Math.Abs(first.AggregatedValue - second.AggregatedValue) <= 1e-6;
 }
 
 static Dictionary<Guid, double> ReadWeights(IReadOnlyList<Characteristic> characteristics)
@@ -572,3 +685,5 @@ static bool TryParseDouble(string? input, out double value)
 
     return double.TryParse(input?.Replace(',', '.'), NumberStyles.Number, CultureInfo.InvariantCulture, out value);
 }
+
+internal sealed record ExperimentCase(int CardCount, int DeckSize);
