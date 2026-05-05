@@ -1,4 +1,3 @@
-﻿using DeckOptimizer.Application;
 using DeckOptimizer.Domain.Entities;
 using DeckOptimizer.Infrastructure;
 
@@ -6,26 +5,47 @@ namespace DeckOptimizer.UI
 {
     public class CardGenerator
     {
-        public static void SeedDatabase(AppDbContext dbContext)
+        public static void SeedDatabase(AppDbContext dbContext, bool resetDatabase = false, int cardCount = 20)
         {
-            //Очищаем базу
-            dbContext.Database.EnsureDeleted();
+            if (resetDatabase)
+            {
+                //Полный сброс нужен только для демонстрационного набора данных
+                dbContext.ChangeTracker.Clear();
+                dbContext.Database.EnsureDeleted();
+            }
+
             dbContext.Database.EnsureCreated();
 
-            Console.WriteLine("Генерация свежего набора данных (20 карт)...");
+            if (!resetDatabase && dbContext.Cards.Any())
+            {
+                Console.WriteLine("В базе уже есть карты. Демо-набор не перезаписывается.");
+                return;
+            }
 
-            //Создаем базовые характеристики
-            var attack = new Characteristic { Id = Guid.NewGuid(), Name = "Атака" };
-            var health = new Characteristic { Id = Guid.NewGuid(), Name = "Здоровье" };
+            Console.WriteLine($"Генерация демонстрационного набора данных ({cardCount} карт)...");
 
-            dbContext.Characteristics.AddRange(attack, health);
-            dbContext.SaveChanges();
+            var characteristics = dbContext.Characteristics
+                .OrderBy(c => c.Name)
+                .ToList();
 
-            var rnd = new Random();
+            if (characteristics.Count == 0)
+            {
+                //Создаем базовые характеристики
+                characteristics = new List<Characteristic>
+                {
+                    new() { Id = Guid.NewGuid(), Name = "Атака" },
+                    new() { Id = Guid.NewGuid(), Name = "Здоровье" }
+                };
+
+                dbContext.Characteristics.AddRange(characteristics);
+                dbContext.SaveChanges();
+            }
+
+            var rnd = new Random(1337);
             var cards = new List<Card>();
 
             //Генерируем разнообразные карты
-            for (int i = 1; i <= 20; i++)
+            for (int i = 1; i <= cardCount; i++)
             {
                 var card = new Card
                 {
@@ -34,23 +54,23 @@ namespace DeckOptimizer.UI
                     Cost = rnd.Next(1, 15) //ci в математической постановке
                 };
 
-                //Добавляем значения характеристик (x_ij)
-                card.CharacteristicValues.Add(new CharacteristicValue
+                foreach (var characteristic in characteristics)
                 {
-                    CharacteristicId = attack.Id,
-                    Value = rnd.Next(1, 20)
-                });
-                card.CharacteristicValues.Add(new CharacteristicValue
-                {
-                    CharacteristicId = health.Id,
-                    Value = rnd.Next(1, 20)
-                });
+                    //Добавляем значения характеристик (x_ij)
+                    card.CharacteristicValues.Add(new CharacteristicValue
+                    {
+                        CardId = card.Id,
+                        CharacteristicId = characteristic.Id,
+                        Value = rnd.Next(1, 20)
+                    });
+                }
 
                 cards.Add(card);
             }
 
             dbContext.Cards.AddRange(cards);
             dbContext.SaveChanges();
+            dbContext.ChangeTracker.Clear();
             Console.WriteLine("База данных успешно обновлена.");
         }
 

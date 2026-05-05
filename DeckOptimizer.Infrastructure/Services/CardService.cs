@@ -1,8 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
 using DeckOptimizer.Domain.Entities;
-using DeckOptimizer.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 
-namespace DeckOptimizer.Application
+namespace DeckOptimizer.Infrastructure.Services
 {
     public class CardService
     {
@@ -23,7 +22,11 @@ namespace DeckOptimizer.Application
         //Редактирование характеристик и данных карты 
         public void UpdateCard(Card card)
         {
-            _dbContext.Entry(card).State = EntityState.Modified;
+            if (_dbContext.Entry(card).State == EntityState.Detached)
+            {
+                _dbContext.Cards.Update(card);
+            }
+
             _dbContext.SaveChanges();
         }
 
@@ -44,7 +47,36 @@ namespace DeckOptimizer.Application
             return _dbContext.Cards
                 .Include(c => c.CharacteristicValues)
                 .ThenInclude(cv => cv.Characteristic)
+                .OrderBy(c => c.Name)
                 .ToList();
+        }
+
+        //Просмотр полного списка характеристик
+        public List<Characteristic> GetAllCharacteristics()
+        {
+            return _dbContext.Characteristics
+                .OrderBy(c => c.Name)
+                .ToList();
+        }
+
+        public List<Characteristic> EnsureDefaultCharacteristics()
+        {
+            var characteristics = GetAllCharacteristics();
+            if (characteristics.Count > 0)
+            {
+                return characteristics;
+            }
+
+            characteristics = new List<Characteristic>
+            {
+                new() { Name = "Атака" },
+                new() { Name = "Здоровье" }
+            };
+
+            _dbContext.Characteristics.AddRange(characteristics);
+            _dbContext.SaveChanges();
+
+            return GetAllCharacteristics();
         }
 
         //Фильтрация карт по заданному условию 

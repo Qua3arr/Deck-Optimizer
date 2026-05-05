@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using DeckOptimizer.Domain.Entities;
-using System.Reflection.PortableExecutable;
 
 namespace DeckOptimizer.Infrastructure
 {
