@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeckOptimizer.UI", "DeckOpt
 		{F068141D-8DA6-4CA0-8739-97B7FD8A921B} = {F068141D-8DA6-4CA0-8739-97B7FD8A921B}
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeckOptimizer.WebAPI", "DeckOptimizer.WebAPI\DeckOptimizer.WebAPI.csproj", "{0C248E68-F621-4E7A-B2A5-119FBF7FC650}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,6 +45,10 @@ Global
 		{063AF978-A301-4D40-8DD7-9E9D3FDFDA10}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{063AF978-A301-4D40-8DD7-9E9D3FDFDA10}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{063AF978-A301-4D40-8DD7-9E9D3FDFDA10}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C248E68-F621-4E7A-B2A5-119FBF7FC650}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C248E68-F621-4E7A-B2A5-119FBF7FC650}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C248E68-F621-4E7A-B2A5-119FBF7FC650}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C248E68-F621-4E7A-B2A5-119FBF7FC650}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

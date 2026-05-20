@@ -1,6 +1,6 @@
 # DeckOptimizer
 
-Консольная система на .NET 8 для хранения карт и оптимального подбора колоды при ограничениях на бюджет и размер.
+Система на .NET 8 для хранения карт и оптимального подбора колоды при ограничениях на бюджет и размер.
 
 ## Возможности
 
@@ -15,7 +15,7 @@
 
 ## Запуск
 
-1. Укажите строку подключения в `DeckOptimizer.UI/.env`:
+1. Укажите строку подключения в `DeckOptimizer.WebAPI/appsettings.json`, переменной окружения `DB_CONNECTION` или в уже существующем `DeckOptimizer.UI/.env`:
 
 ```env
 DB_CONNECTION=Host=localhost;Database=deck_optimizer;Username=postgres;Password=postgres
@@ -27,7 +27,35 @@ DB_CONNECTION=Host=localhost;Database=deck_optimizer;Username=postgres;Password=
 dotnet build Deck-Optimizer.sln -m:1 -nr:false
 ```
 
-3. Запустите консольное приложение:
+3. Запустите WebAPI:
+
+```powershell
+dotnet run --project DeckOptimizer.WebAPI
+```
+
+Swagger будет доступен по адресу, который выведет приложение, например:
+
+```text
+https://localhost:7000/swagger
+```
+
+Основные эндпоинты:
+
+```text
+GET    /api/cards
+GET    /api/cards/{id}
+POST   /api/cards
+PUT    /api/cards/{id}
+DELETE /api/cards/{id}
+
+GET    /api/characteristics
+POST   /api/characteristics
+
+POST   /api/optimization
+GET    /api/experiments
+```
+
+4. При необходимости можно запустить старое консольное приложение:
 
 ```powershell
 dotnet run --project DeckOptimizer.UI

@@ -1,0 +1,50 @@
+@DeckOptimizer.WebAPI_HostAddress = http://localhost:5231
+
+GET {{DeckOptimizer.WebAPI_HostAddress}}/api/cards
+Accept: application/json
+
+###
+
+GET {{DeckOptimizer.WebAPI_HostAddress}}/api/characteristics
+Accept: application/json
+
+###
+
+POST {{DeckOptimizer.WebAPI_HostAddress}}/api/characteristics
+Content-Type: application/json
+
+{
+  "name": "Мана",
+  "defaultValue": 0
+}
+
+###
+
+POST {{DeckOptimizer.WebAPI_HostAddress}}/api/cards
+Content-Type: application/json
+
+{
+  "name": "Тестовая карта",
+  "cost": 5,
+  "characteristicValues": {
+  }
+}
+
+###
+
+POST {{DeckOptimizer.WebAPI_HostAddress}}/api/optimization
+Content-Type: application/json
+
+{
+  "maxCost": 30,
+  "deckSize": 5,
+  "weights": {
+  }
+}
+
+###
+
+GET {{DeckOptimizer.WebAPI_HostAddress}}/api/experiments
+Accept: application/json
+
+###
